@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1046954227489",
+    "project_id": "wiam-6df4d",
+    "storage_bucket": "wiam-6df4d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1046954227489:android:6cf2bc96e9277732003060",
+        "android_client_info": {
+          "package_name": "com.mgok.wiam"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyABWQe6v06lLxB_np3tpqkkKjlQ1zDEce0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
