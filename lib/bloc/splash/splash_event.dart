@@ -4,3 +4,5 @@ part of 'splash_bloc.dart';
 sealed class SplashEvent {}
 
 final class SplashInitialEvent extends SplashEvent {}
+
+

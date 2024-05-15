@@ -7,11 +7,7 @@ abstract class SettingsState {
 
 final class SettingsInitialState extends SettingsState {}
 
-final class SettingsLinkedAccountState extends SettingsState {
-  final String message;
-
-  const SettingsLinkedAccountState({required this.message});
-}
+final class SettingsLoadingState extends SettingsState {}
 
 final class SettingsChangeVolumeState extends SettingsState {
   final double volume;
@@ -25,3 +21,10 @@ final class SettingsUserState extends SettingsState {
 
   const SettingsUserState({required this.userFb, required this.userGg});
 }
+
+final class SettingsErrorState extends SettingsState {
+  final String message;
+
+  const SettingsErrorState({required this.message});
+}
+

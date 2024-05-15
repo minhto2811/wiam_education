@@ -1,5 +1,5 @@
-import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../data/models/question.dart';
 import '../../data/repositories/question.dart';
@@ -9,7 +9,11 @@ part 'question_event.dart';
 part 'question_state.dart';
 
 class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
-  QuestionBloc() : super(QuestionInitialState()) {
+  final QuestionRepository questionRepo;
+  final PlayerManager playerManager;
+
+  QuestionBloc({required this.questionRepo, required this.playerManager})
+      : super(QuestionInitialState()) {
     on<GetQuestionByIdEvent>(_getQuestionById);
     on<ReadQuestionEvent>(_playQuestion);
     on<CheckAnswerEvent>(_checkAnswer);
@@ -18,11 +22,10 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
   Future<void> _getQuestionById(
       GetQuestionByIdEvent event, Emitter<QuestionState> emit) async {
     emit(QuestionLoadingState());
-    var questionRepo = QuestionRepo();
     try {
       final question = await questionRepo.getQuestionById(event.id);
       emit(QuestionCompletedState(question, null));
-      if (question != null) PlayerManager().playFromUrl(question.audio);
+      if (question != null) playerManager.playFromUrl(question.audio);
     } catch (e) {
       debugPrint(e.toString());
       emit(QuestionCompletedState(null, e.toString()));
@@ -30,7 +33,7 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
   }
 
   void _playQuestion(ReadQuestionEvent event, Emitter<QuestionState> emit) {
-    PlayerManager().playFromUrl(event.url);
+    playerManager.playFromUrl(event.url);
     emit(QuestionInitialState());
   }
 
@@ -39,11 +42,10 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
     var correctAnswer = event.correctAnswer;
     var isCorrect = answer == correctAnswer;
     if (isCorrect) {
-      PlayerManager().playCorrectAnswer();
+      playerManager.playCorrectAnswer();
     } else {
-      PlayerManager().playWrongAnswer();
+      playerManager.playWrongAnswer();
     }
     emit(QuestionCheckResultState(isCorrect, correctAnswer));
-
   }
 }

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
 import 'package:wiam/bloc/lesson_today/lesson_today_bloc.dart';
 import 'package:wiam/data/models/lesson_today.dart';
+import 'package:wiam/di/app_module.dart';
 import 'package:wiam/ui/home/page_content.dart';
 import 'package:wiam/ui/home/page_question.dart';
 
@@ -16,7 +17,7 @@ class LessonTodayPage extends StatefulWidget {
 }
 
 class _LessonTodayPageState extends State<LessonTodayPage> {
-  final LessonTodayBloc _lessonTodayBloc = LessonTodayBloc();
+  final LessonTodayBloc _lessonTodayBloc = getIt<LessonTodayBloc>();
 
   @override
   void initState() {
@@ -26,7 +27,6 @@ class _LessonTodayPageState extends State<LessonTodayPage> {
 
   @override
   void dispose() {
-    _lessonTodayBloc.dispose();
     _lessonTodayBloc.close();
     super.dispose();
   }
@@ -81,7 +81,7 @@ class ShowLessonToday extends StatefulWidget {
 
 class _ShowLessonTodayState extends State<ShowLessonToday> {
   void onClick(int page) {
-    PlayerManager().playWhenClick();
+    getIt<PlayerManager>().playWhenClick();
     _pageController.animateToPage(page,
         duration: const Duration(milliseconds: 400), curve: Curves.ease);
   }

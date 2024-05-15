@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
 import 'package:wiam/bloc/splash/splash_bloc.dart';
+import 'package:wiam/di/app_module.dart';
 import 'package:wiam/ui/home/home.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -14,7 +15,7 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  final SplashBloc _splashBloc = SplashBloc();
+  final SplashBloc _splashBloc = getIt<SplashBloc>();
 
   @override
   void initState() {
