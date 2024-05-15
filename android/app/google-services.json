@@ -12,7 +12,20 @@
           "package_name": "com.mgok.wiam"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1046954227489-jt84m7e2kurls9lkskgca6np5m6j4b91.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mgok.wiam",
+            "certificate_hash": "e8fa89494bf0dfd91f5256ea706dd6eec5d72d74"
+          }
+        },
+        {
+          "client_id": "1046954227489-6jdbt223engm3v1504q21u8e1t99mgr6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyABWQe6v06lLxB_np3tpqkkKjlQ1zDEce0"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1046954227489-6jdbt223engm3v1504q21u8e1t99mgr6.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1046954227489-eg1r21ua9e04688ek12jf7lvm38goqg7.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.mgok.wiam"
+              }
+            }
+          ]
         }
       }
     }

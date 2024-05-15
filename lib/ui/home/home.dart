@@ -5,6 +5,7 @@ import 'package:wiam/bloc/home/topic_bloc.dart';
 import 'package:wiam/ui/settings/settings.dart';
 
 import '../../data/models/topic.dart';
+import '../../di/app_module.dart';
 import '../../services/player_manager.dart';
 import 'lesson_today.dart';
 
@@ -21,14 +22,9 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-class HomePage extends StatefulWidget {
+class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -41,7 +37,7 @@ class _HomePageState extends State<HomePage> {
               filterQuality: FilterQuality.high,
               opacity: 0.4)),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.max,
@@ -60,8 +56,8 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _newLesson() {
-    PlayerManager().playWhenClick();
+  void _newLesson(BuildContext context) {
+    getIt<PlayerManager>().playWhenClick();
     showModalBottomSheet(
         context: context,
         builder: (context) {
@@ -69,14 +65,14 @@ class _HomePageState extends State<HomePage> {
         });
   }
 
-  void _onTap(String routeName) {
-    PlayerManager().playWhenClick();
+  void _onTap(String routeName, BuildContext context) {
+    getIt<PlayerManager>().playWhenClick();
     Navigator.pushNamed(context, routeName);
   }
 }
 
 class ListLesson extends StatefulWidget {
-  final void Function(String route) onTap;
+  final void Function(String route, BuildContext context) onTap;
 
   const ListLesson({super.key, required this.onTap});
 
@@ -85,7 +81,7 @@ class ListLesson extends StatefulWidget {
 }
 
 class _ListLessonState extends State<ListLesson> {
-  final TopicBloc _topicBloc = TopicBloc();
+  final TopicBloc _topicBloc = getIt<TopicBloc>();
 
   @override
   void initState() {
@@ -117,10 +113,9 @@ class _ListLessonState extends State<ListLesson> {
                 final topic = state.topics[index];
                 return LessonItem(onTap: widget.onTap, topic: topic);
               },
-              separatorBuilder: (_, __) =>
-              const SizedBox(
-                height: 14.0,
-              ),
+              separatorBuilder: (_, __) => const SizedBox(
+                    height: 14.0,
+                  ),
               itemCount: state.topics.length);
         }
         return const SizedBox();
@@ -131,7 +126,7 @@ class _ListLessonState extends State<ListLesson> {
 
 class LessonItem extends StatelessWidget {
   final Topic topic;
-  final void Function(String route) onTap;
+  final void Function(String route, BuildContext context) onTap;
 
   const LessonItem({super.key, required this.onTap, required this.topic});
 
@@ -142,7 +137,7 @@ class LessonItem extends StatelessWidget {
       color: const Color(0xFF5AC2C1),
       child: InkWell(
         borderRadius: const BorderRadius.all(Radius.circular(10.0)),
-        onTap: () => onTap(topic.id),
+        onTap: () => onTap(topic.id,context),
         child: ListTile(
           contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
           title: Text(topic.title,
@@ -167,7 +162,7 @@ class LessonItem extends StatelessWidget {
 }
 
 class CategoryMenu extends StatelessWidget {
-  final void Function(String route) onTap;
+  final void Function(String route, BuildContext context) onTap;
 
   const CategoryMenu({super.key, required this.onTap});
 
@@ -179,16 +174,15 @@ class CategoryMenu extends StatelessWidget {
         CategoryItem(
             image: 'assets/images/brain.png',
             title: 'Luyện tập',
-            onTap: () => onTap(SettingsScreen.route)),
+            onTap: () => onTap(SettingsScreen.route, context)),
         CategoryItem(
             image: 'assets/images/creative-brain.png',
             title: 'Của tôi',
-
-            onTap: () => onTap(SettingsScreen.route)),
+            onTap: () => onTap(SettingsScreen.route, context)),
         CategoryItem(
             image: 'assets/images/gear.png',
             title: 'Cài đặt',
-            onTap: () => onTap(SettingsScreen.route)),
+            onTap: () => onTap(SettingsScreen.route, context)),
       ],
     );
   }
@@ -199,10 +193,11 @@ class CategoryItem extends StatelessWidget {
   final String title;
   final void Function() onTap;
 
-  const CategoryItem({super.key,
-    required this.image,
-    required this.title,
-    required this.onTap});
+  const CategoryItem(
+      {super.key,
+      required this.image,
+      required this.title,
+      required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -280,7 +275,7 @@ class HelloApp extends StatelessWidget {
 }
 
 class BannerApp extends StatelessWidget {
-  final void Function() onTap;
+  final void Function(BuildContext context) onTap;
 
   const BannerApp({super.key, required this.onTap});
 
@@ -289,7 +284,7 @@ class BannerApp extends StatelessWidget {
     return InkWell(
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
-      onTap: onTap,
+      onTap: () => onTap(context),
       child: Container(
         width: double.infinity,
         margin: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 8),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
+import 'package:wiam/di/app_module.dart';
 
 import '../../bloc/question/question_bloc.dart';
 import '../../services/player_manager.dart';
@@ -18,7 +19,7 @@ class PageQuestion extends StatefulWidget {
 }
 
 class _PageQuestionState extends State<PageQuestion> {
-  final QuestionBloc _questionBloc = QuestionBloc();
+  final QuestionBloc _questionBloc = getIt<QuestionBloc>();
   String _myAnswer = '';
 
   @override
@@ -34,19 +35,19 @@ class _PageQuestionState extends State<PageQuestion> {
   }
 
   void chooseAnswer(String answer) {
-    PlayerManager().playWhenClick();
+    getIt<PlayerManager>().playWhenClick();
     setState(() {
       _myAnswer = answer;
     });
   }
 
   void checkQuestion(String correctAnswer) {
-    PlayerManager().playWhenClick();
+    getIt<PlayerManager>().playWhenClick();
     _questionBloc.add(CheckAnswerEvent(correctAnswer, _myAnswer));
   }
 
-  void closeBottomSheet(){
-    PlayerManager().playWhenClick();
+  void closeBottomSheet() {
+    getIt<PlayerManager>().playWhenClick();
     Navigator.of(context).pop();
   }
 
@@ -152,7 +153,7 @@ class _PageQuestionState extends State<PageQuestion> {
                   ),
                   const SizedBox(height: 32.0),
                   ElevatedButton(
-                    onPressed:closeBottomSheet,
+                    onPressed: closeBottomSheet,
                     child: const Text('Kết thúc'),
                   ),
                 ],

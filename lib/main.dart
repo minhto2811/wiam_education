@@ -1,6 +1,6 @@
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:wiam/di/app_module.dart';
 import 'package:wiam/ui/home/home.dart';
 import 'package:wiam/ui/settings/settings.dart';
 import 'package:wiam/ui/splash/splash.dart';
@@ -10,7 +10,8 @@ import 'config/firebase_options.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
- // await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
+  // await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
+  setup();
   runApp(const MyApp());
 }
 
@@ -29,7 +30,7 @@ class MyApp extends StatelessWidget {
       routes: {
         SplashScreen.route: (context) => const SplashScreen(),
         HomeScreen.route: (context) => const HomeScreen(),
-        SettingsScreen.route :(context)=>const SettingsScreen(),
+        SettingsScreen.route: (context) => const SettingsScreen(),
       },
     );
   }

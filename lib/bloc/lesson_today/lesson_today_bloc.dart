@@ -9,35 +9,37 @@ part 'lesson_today_event.dart';
 part 'lesson_today_state.dart';
 
 class LessonTodayBloc extends Bloc<LessonTodayEvent, LessonTodayState> {
-  LessonTodayBloc() : super(LessonTodayInitialState()) {
-    on<LessonTodayInitialEvent>(_getListLessonToday);
+  final LessonTodayRepository lessonTodayRepo;
+  final PlayerManager playerManager;
+  LessonTodayBloc({required this.lessonTodayRepo,required this.playerManager}) : super(LessonTodayInitialState()) {
+    on<LessonTodayInitialEvent>(_getLessonToday);
     on<ReadDescriptionEvent>(_readDescription);
   }
 
-  Future<void> _getListLessonToday(
+  Future<void> _getLessonToday(
       LessonTodayInitialEvent event, Emitter<LessonTodayState> emit) async {
     emit(LessonTodayLoadingState());
-    await Future.delayed(const Duration(seconds: 1));
-    var lessonTodayRepo = LessonTodayRepo();
     try {
-      final lessonToday = await lessonTodayRepo.getLessonToday();
+      final ids = await lessonTodayRepo.getListIdLessonTodayRecent();
+      if (ids.isEmpty) ids.add('');
+      var lessonToday = await lessonTodayRepo.getLessonToday(ids);
+      if (lessonToday == null) {
+        lessonToday = await lessonTodayRepo.getLessonToday(['']);
+       await lessonTodayRepo.deleteListIdLessonTodayRecent();
+      }
       emit(LessonTodayCompletedState(lessonToday, null));
-      PlayerManager().playFromUrl(lessonToday.audio);
+      lessonTodayRepo.insertIdLessonTodayRecent(lessonToday!.id);
     } catch (e) {
-      debugPrint(e.toString());
+      debugPrint(e.runtimeType.toString());
       emit(LessonTodayCompletedState(null, e.toString()));
     }
   }
 
   Future<void> _readDescription(
-      ReadDescriptionEvent event, Emitter<LessonTodayState> emit) async{
-    PlayerManager().playWhenClick();
+      ReadDescriptionEvent event, Emitter<LessonTodayState> emit) async {
+   playerManager.playWhenClick();
     await Future.delayed(const Duration(milliseconds: 300));
-    PlayerManager().playFromUrl(event.audio);
+   playerManager.playFromUrl(event.audio);
   }
-
-  void dispose() {
-    PlayerManager().stop();
-    PlayerManager().release();
-  }
+  
 }

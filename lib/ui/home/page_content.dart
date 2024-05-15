@@ -13,12 +13,16 @@ class PageContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(
-          description,
-          style: const TextStyle(fontSize: 16.0),
-          maxLines: 8,
-          softWrap: true,
-          overflow: TextOverflow.ellipsis,
+        Flexible(
+          fit: FlexFit.loose,
+          flex: 1,
+          child: Text(
+            description,
+            style: const TextStyle(fontSize: 16.0),
+            maxLines: 8,
+            softWrap: true,
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
         const SizedBox(height: 16.0),
         ElevatedButton.icon(

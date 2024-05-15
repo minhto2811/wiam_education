@@ -9,14 +9,14 @@ part 'topic_event.dart';
 part 'topic_state.dart';
 
 class TopicBloc extends Bloc<TopicEvent, TopicState> {
-  TopicBloc() : super(TopicInitialState()) {
+  final TopicRepository topicRepo;
+  TopicBloc({required this.topicRepo}) : super(TopicInitialState()) {
     on<TopicLoadingEvent>(_getData);
   }
 
   Future<void> _getData(
       TopicLoadingEvent event, Emitter<TopicState> emit) async {
     emit(TopicLoadingSate());
-    var topicRepo = TopicRepo();
     try {
       final topics =
           await topicRepo.getListTopic(event.startAfterDoc, event.limit);
