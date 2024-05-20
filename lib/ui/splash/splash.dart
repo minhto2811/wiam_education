@@ -49,27 +49,11 @@ class _SplashScreenState extends State<SplashScreen> {
             image: DecorationImage(
                 image: AssetImage('assets/images/bg_1.jpg'),
                 fit: BoxFit.cover)),
-        child: Stack(
-          children: [
-            Center(
-                child: Lottie.asset(
-              'assets/animations/panda_animation.json',
-              fit: BoxFit.cover,
-              frameRate: FrameRate.max,
-            )),
-            Positioned(
-                width: MediaQuery.of(context).size.width,
-                bottom: 12,
-                child: const Center(
-                  child: Text(
-                    'Phiên bản v.1.0.2',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        decoration: TextDecoration.none),
-                  ),
-                ))
-          ],
-        ));
+        child: Center(
+            child: Lottie.asset(
+          'assets/animations/panda_animation.json',
+          fit: BoxFit.cover,
+          frameRate: FrameRate.max,
+        )));
   }
 }
