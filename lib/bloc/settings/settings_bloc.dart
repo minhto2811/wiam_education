@@ -3,11 +3,14 @@ import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_translate/flutter_translate.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:wiam/usecase/facebook/facebook_sign_out_use_case.dart';
+import 'package:wiam/usecase/facebook/get_credential_facebook_use_case.dart';
+import 'package:wiam/usecase/google/get_credential_google_use_case.dart';
+import 'package:wiam/usecase/google/google_sign_out_use_case.dart';
+import 'package:wiam/usecase/lesson_today/create_lesson_today_recent_use_case.dart';
 
-import '../../data/repositories/lesson_today.dart';
 import '../../services/player_manager.dart';
 import '../../services/sharepreferences_manager.dart';
 
@@ -15,18 +18,25 @@ part 'settings_event.dart';
 part 'settings_state.dart';
 
 class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
-  final FirebaseAuth auth;
-  final FacebookAuth facebookAuth;
-  final GoogleSignIn googleSignIn;
-  final PlayerManager playerManager;
-  final LessonTodayRepository lessonTodayRepo;
+  final FirebaseAuth _auth;
+  final GetCredentialGoogleUseCase _getCredentialGoogleUseCase;
+  final GetCredentialFacebookUseCase _getCredentialFacebookUseCase;
+  final CreateLessonTodayRecentUseCase _createLessonTodayRecentUseCase;
+  final FacebookSignOutUseCase _facebookSignOutUseCase;
+  final GoogleSignOutUseCase _googleSignOutUseCase;
+
+  final PlayerManager _playerManager;
+  final SharePreferencesManager _sharePreferencesManager;
 
   SettingsBloc(
-      {required this.auth,
-      required this.facebookAuth,
-      required this.googleSignIn,
-      required this.playerManager,
-      required this.lessonTodayRepo})
+      this._auth,
+      this._getCredentialGoogleUseCase,
+      this._getCredentialFacebookUseCase,
+      this._createLessonTodayRecentUseCase,
+      this._facebookSignOutUseCase,
+      this._googleSignOutUseCase,
+      this._playerManager,
+      this._sharePreferencesManager)
       : super(SettingsInitialState()) {
     on<SettingsInitialVolumeEvent>(_onSettingsInitialVolumeEvent);
     on<SettingsInitialUserEvent>(_onSettingsInitialUserEvent);
@@ -34,33 +44,51 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     on<SettingsLinkAccountEvent>(_onSettingsLinkAccountEvent);
     on<SettingContactEvent>(_onSettingContactEvent);
     on<SettingsSignInEvent>(_onSettingsSignInEvent);
+    on<SettingsChangeLanguageEvent>(_onSettingsChangeLanguageEvent);
+  }
+
+  Future<void> _onSettingsChangeLanguageEvent(
+      SettingsChangeLanguageEvent event, Emitter<SettingsState> emit) async {
+    _playerManager.playWhenClick();
+    final languageCode =
+        LocalizedApp.of(event.context).delegate.currentLocale.languageCode;
+    var language = languageCode == 'en' ? 'vi_VN' : 'en_US';
+    emit(SettingsChangeLanguageState());
+    await _sharePreferencesManager.saveSettingLanguage(language);
   }
 
   Future<void> _onSettingsSignInEvent(
       SettingsSignInEvent event, Emitter<SettingsState> emit) async {
+    final languageCode =
+        LocalizedApp.of(event.context).delegate.currentLocale.languageCode;
     emit(SettingsLoadingState());
     try {
       final credential = event.type == 'facebook'
-          ? await _getCredentialFacebook()
-          : await _getCredentialGoogle();
-      await auth.signOut();
-      final user = await auth.signInWithCredential(credential!);
+          ? await _getCredentialFacebookUseCase.call()
+          : await _getCredentialGoogleUseCase.call();
+      await _auth.signOut();
+      final user = await _auth.signInWithCredential(credential!);
       _onSettingsInitialUserEvent(SettingsInitialUserEvent(), emit);
       if (user.additionalUserInfo?.isNewUser == true) {
-        lessonTodayRepo.createLessonTodayRecent();
+        _createLessonTodayRecentUseCase.call();
       }
     } on IOException catch (e) {
-      emit(const SettingsErrorState(message: "Không có kết nối mạng."));
+      emit(SettingsErrorState(
+          message: languageCode == 'en'
+              ? "No internet connection."
+              : "Không có kết nối mạng."));
       debugPrint(e.toString());
     } on FirebaseAuthException catch (e) {
-      emit(const SettingsErrorState(
-          message: "Tài khoản đã được liên kết trước đó."));
+      emit(SettingsErrorState(
+          message: languageCode == 'en'
+              ? "The account already exists for that email."
+              : "Tài khoản đã được liên kết trước đó."));
       debugPrint(e.toString());
     } finally {
       if (event.type == 'facebook') {
-        facebookAuth.logOut();
+        _facebookSignOutUseCase.signOut();
       } else {
-        googleSignIn.signOut();
+        _googleSignOutUseCase.signOut();
       }
     }
   }
@@ -68,6 +96,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   Future<void> _onSettingContactEvent(
       SettingContactEvent event, Emitter<SettingsState> emit) async {
     emit(SettingsLoadingState());
+    final languageCode =
+        LocalizedApp.of(event.context).delegate.currentLocale.languageCode;
     late Uri url;
     if (event.type == 'tel') {
       url = Uri.parse("tel:0355889107");
@@ -79,64 +109,55 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     if (await canLaunchUrl(url)) {
       await launchUrl(url);
     } else {
-      emit(const SettingsErrorState(
-          message: "Không thể mở định dạng liên hệ."));
+      emit(SettingsErrorState(
+          message: languageCode == 'en'
+              ? "Unable to open the link."
+              : "Không thể mở định dạng liên hệ."));
     }
   }
 
   Future<void> _onSettingsLinkAccountEvent(
       SettingsLinkAccountEvent event, Emitter<SettingsState> emit) async {
     emit(SettingsLoadingState());
+    final languageCode =
+        LocalizedApp.of(event.context).delegate.currentLocale.languageCode;
     try {
       final credential = event.type == 'facebook'
-          ? await _getCredentialFacebook()
-          : await _getCredentialGoogle();
-      await auth.currentUser?.linkWithCredential(credential!);
+          ? await _getCredentialFacebookUseCase.call()
+          : await _getCredentialGoogleUseCase.call();
+      await _auth.currentUser?.linkWithCredential(credential!);
       _onSettingsInitialUserEvent(SettingsInitialUserEvent(), emit);
     } on IOException catch (e) {
-      emit(const SettingsErrorState(message: "Không có kết nối mạng."));
+      emit(SettingsErrorState(
+          message: languageCode == 'en'
+              ? "No internet connection."
+              : "Không có kết nối mạng."));
       debugPrint(e.toString());
     } on FirebaseAuthException catch (e) {
-      emit(const SettingsErrorState(
-          message: "Tài khoản đã được liên kết trước đó."));
+      emit(SettingsErrorState(
+          message: languageCode == 'en'
+              ? "The account already exists for that email."
+              : "Tài khoản đã được liên kết trước đó."));
       debugPrint(e.toString());
     } finally {
       if (event.type == 'facebook') {
-        facebookAuth.logOut();
+        _facebookSignOutUseCase.signOut();
       } else {
-        googleSignIn.signOut();
+        _googleSignOutUseCase.signOut();
       }
     }
-  }
-
-  Future<OAuthCredential> _getCredentialFacebook() async {
-    final LoginResult loginResult = await facebookAuth.login();
-    final OAuthCredential facebookAuthCredential =
-        FacebookAuthProvider.credential(loginResult.accessToken!.token);
-    return facebookAuthCredential;
-  }
-
-  Future<OAuthCredential?> _getCredentialGoogle() async {
-    final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-    final GoogleSignInAuthentication? googleAuth =
-        await googleUser?.authentication;
-    final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth?.accessToken,
-      idToken: googleAuth?.idToken,
-    );
-    return credential;
   }
 
   Future<void> _onSettingsInitialVolumeEvent(
       SettingsInitialVolumeEvent event, Emitter<SettingsState> emit) async {
     final double volume =
-        await SharePreferencesManager.getSetting(SettingKey.volume);
+        await _sharePreferencesManager.getSettingVolume() ?? 1.0;
     emit(SettingsChangeVolumeState(volume: volume));
   }
 
   void _onSettingsInitialUserEvent(
       SettingsInitialUserEvent event, Emitter<SettingsState> emit) {
-    var user = auth.currentUser;
+    var user = _auth.currentUser;
     UserInfo? userFb;
     UserInfo? userGg;
     user?.providerData.forEach((element) {
@@ -152,7 +173,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   Future<void> _onSettingsChangeVolumeLevelEvent(
       SettingsChangeVolumeLevelEvent event, Emitter<SettingsState> emit) async {
     final volume = event.volumeLevel;
-    playerManager.setVolume(volume);
-    SharePreferencesManager.saveSetting(SettingKey.volume, volume);
+    _playerManager.setVolume(volume);
+    _sharePreferencesManager.saveSettingVolume(volume);
   }
 }

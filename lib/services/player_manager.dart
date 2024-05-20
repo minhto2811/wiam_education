@@ -1,8 +1,8 @@
 import 'package:audioplayers/audioplayers.dart';
 
 class PlayerManager {
-   final AudioPlayer _player = AudioPlayer(playerId: "player_manager");
-   double _defaultVolume = 1.0;
+  final AudioPlayer _player = AudioPlayer(playerId: "player_manager");
+  double _defaultVolume = 1.0;
 
   void playFromAssets(String source) {
     _player.play(AssetSource(source), volume: _defaultVolume);
@@ -12,10 +12,17 @@ class PlayerManager {
     _player.play(UrlSource(source), volume: _defaultVolume);
   }
 
+  void playFromUrlNewInstance(String source) => AudioPlayer(playerId: 'play_2')
+    ..setSourceUrl(source)
+    ..setVolume(_defaultVolume)
+    ..resume();
+
   void playWhenClick() => AudioPlayer(playerId: 'click')
       .play(AssetSource('audios/click.mp3'), volume: _defaultVolume);
 
   void stop() => _player.stop();
+
+  void release() => _player.release();
 
   void setVolume(double volume) => _defaultVolume = volume;
 

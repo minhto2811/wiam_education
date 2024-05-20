@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_translate/flutter_translate.dart';
 import 'package:lottie/lottie.dart';
 import 'package:wiam/di/app_module.dart';
 
-import '../../bloc/question/question_bloc.dart';
-import '../../services/player_manager.dart';
+import '../../../bloc/question/question_bloc.dart';
+import '../../../services/player_manager.dart';
 import 'lesson_today.dart';
 
 class PageQuestion extends StatefulWidget {
-  final String questionId;
+  final String lessonId;
   final void Function(int page) onClick;
-
   const PageQuestion(
-      {super.key, required this.questionId, required this.onClick});
+      {super.key, required this.onClick, required this.lessonId});
 
   @override
   State<PageQuestion> createState() => _PageQuestionState();
@@ -24,7 +24,8 @@ class _PageQuestionState extends State<PageQuestion> {
 
   @override
   void initState() {
-    _questionBloc.add(GetQuestionByIdEvent(widget.questionId));
+    _questionBloc.add(GetQuestionByIdEvent(widget.lessonId));
+
     super.initState();
   }
 
@@ -43,7 +44,7 @@ class _PageQuestionState extends State<PageQuestion> {
 
   void checkQuestion(String correctAnswer) {
     getIt<PlayerManager>().playWhenClick();
-    _questionBloc.add(CheckAnswerEvent(correctAnswer, _myAnswer));
+    _questionBloc.add(CheckAnswerEvent(correctAnswer: correctAnswer,answer:  _myAnswer,lessonId:widget.lessonId,context: context));
   }
 
   void closeBottomSheet() {
@@ -59,8 +60,8 @@ class _PageQuestionState extends State<PageQuestion> {
       listener: (context, state) {},
       builder: (context, state) {
         if (state is QuestionLoadingState) {
-          return const MyPlaceHolder(
-              message: 'Hãy chờ chút nhé...',
+          return MyPlaceHolder(
+              message: translate('lesson_today.loading'),
               image: 'assets/animations/bird_animation.json');
         } else if (state is QuestionCompletedState) {
           if (state.question != null) {
@@ -77,9 +78,9 @@ class _PageQuestionState extends State<PageQuestion> {
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2,
-                            crossAxisSpacing: 20,
-                            mainAxisSpacing: 20,
-                            childAspectRatio: 4 / 1),
+                            crossAxisSpacing: 10,
+                            mainAxisSpacing: 10,
+                            childAspectRatio: 6 / 2),
                     shrinkWrap: true,
                     itemCount: state.question!.answers.length,
                     physics: const NeverScrollableScrollPhysics(),
@@ -109,33 +110,27 @@ class _PageQuestionState extends State<PageQuestion> {
                     ElevatedButton.icon(
                       onPressed: () => widget.onClick(0),
                       icon: const Icon(Icons.arrow_back_rounded),
-                      label: const Text('Quay lại'),
+                      label:  Text(translate('lesson_today.button.back')),
                     ),
                     ElevatedButton.icon(
                       onPressed: _myAnswer.isEmpty
                           ? null
                           : () => checkQuestion(state.question!.correctAnswer),
                       icon: const Icon(Icons.arrow_forward_rounded),
-                      label: const Text('Gửi câu trả lời'),
+                      label: Text(translate('lesson_today.button.send')),
                     ),
                   ],
                 )
               ],
             );
           }
-          return const MyPlaceHolder(
-              message: 'Đã xảy ra lỗi...',
+          return MyPlaceHolder(
+              message: translate('lesson_today.error'),
               image: 'assets/animations/cat_4_animation.json');
         } else if (state is QuestionCheckResultState) {
-          var message = state.isCorrect
-              ? 'Tuyệt vời, câu trả lời của bạn hoàn toàn chính xác!'
-              : 'Câu trả lời của bạn sai rồi, đáp án đúng phải là ${state.correctAnswer}.';
-          var sourceAnim = state.isCorrect
-              ? 'assets/animations/firework_animation.json'
-              : 'assets/animations/sad_animation.json';
           return Stack(children: [
             Center(
-              child: Lottie.asset(sourceAnim,
+              child: Lottie.asset(state.asset,
                   fit: BoxFit.cover, frameRate: FrameRate.max),
             ),
             Center(
@@ -145,7 +140,7 @@ class _PageQuestionState extends State<PageQuestion> {
                     height: 40.0,
                   ),
                   Text(
-                    message,
+                    state.message,
                     style: const TextStyle(
                       fontSize: 16.0,
                     ),
@@ -154,7 +149,7 @@ class _PageQuestionState extends State<PageQuestion> {
                   const SizedBox(height: 32.0),
                   ElevatedButton(
                     onPressed: closeBottomSheet,
-                    child: const Text('Kết thúc'),
+                    child: Text(translate('lesson_today.button.finish')),
                   ),
                 ],
               ),

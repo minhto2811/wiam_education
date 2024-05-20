@@ -3,9 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:wiam/data/models/lesson_today.dart';
 
 abstract interface class LessonTodayRepository {
-
-
-  Future<LessonToday?> getLessonToday(List<String> ids);
+  Future<LessonToday?> getLessonToday(List<String> ids, String language);
 
   Future<List<String>> getListIdLessonTodayRecent();
 
@@ -17,16 +15,16 @@ abstract interface class LessonTodayRepository {
 }
 
 class LessonTodayRepositoryImpl implements LessonTodayRepository {
-  final FirebaseFirestore firestore;
+  final FirebaseFirestore _firestore;
 
-  LessonTodayRepositoryImpl({required this.firestore});
+  LessonTodayRepositoryImpl(this._firestore);
 
   @override
-  Future<LessonToday?> getLessonToday(List<String> ids) async {
-    
-    final snapshots = await firestore
+  Future<LessonToday?> getLessonToday(List<String> ids, String language) async {
+    final snapshots = await _firestore
         .collection('lesson_todays')
         .where('id', whereNotIn: ids)
+        .where('language', isEqualTo: language)
         .limit(1)
         .get();
     if (snapshots.docs.isEmpty) return null;
@@ -36,18 +34,16 @@ class LessonTodayRepositoryImpl implements LessonTodayRepository {
 
   @override
   Future<List<String>> getListIdLessonTodayRecent() async {
-    
     var userId = FirebaseAuth.instance.currentUser!.uid;
     final snapshots =
-        await firestore.collection('lesson_today_recent').doc(userId).get();
+        await _firestore.collection('lesson_today_recent').doc(userId).get();
     return LessonToday.getList(snapshots.data());
   }
 
   @override
   Future<void> deleteListIdLessonTodayRecent() async {
-    
     var userId = FirebaseAuth.instance.currentUser!.uid;
-    await firestore
+    await _firestore
         .collection('lesson_today_recent')
         .doc(userId)
         .set({'ids': []}, SetOptions(merge: true));
@@ -55,21 +51,19 @@ class LessonTodayRepositoryImpl implements LessonTodayRepository {
 
   @override
   Future<void> insertIdLessonTodayRecent(String ids) async {
-    
     var userId = FirebaseAuth.instance.currentUser!.uid;
-    await firestore.collection('lesson_today_recent').doc(userId).update({
+    await _firestore.collection('lesson_today_recent').doc(userId).update({
       'ids': FieldValue.arrayUnion([ids])
     });
   }
 
   @override
   Future<void> createLessonTodayRecent() {
-    
     var userId = FirebaseAuth.instance.currentUser!.uid;
     var data = {
       'userId': userId,
       'ids': [],
     };
-    return firestore.collection('lesson_today_recent').doc(userId).set(data);
+    return _firestore.collection('lesson_today_recent').doc(userId).set(data);
   }
 }
