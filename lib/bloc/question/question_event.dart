@@ -16,8 +16,9 @@ final class ReadQuestionEvent extends QuestionEvent {
 }
 
 final class CheckAnswerEvent extends QuestionEvent {
+  final String lessonId;
   final String answer;
   final String correctAnswer;
-
-  CheckAnswerEvent(this.correctAnswer, this.answer);
+  final BuildContext context;
+  CheckAnswerEvent({required this.correctAnswer,required this.answer,required this.lessonId, required this.context});
 }

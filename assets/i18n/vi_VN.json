@@ -1,0 +1,49 @@
+{
+  "hello": "Xin chào!",
+  "practice_for_today": "Luyện tập cho ngày hôm nay nào \uD83D\uDC76",
+  "banner": {
+    "one": "Hôm nay",
+    "two": "học \uD83D\uDCDA",
+    "three": " gì?"
+  },
+  "title": {
+    "extend": "\uD83D\uDEA9 Mở rộng",
+    "for_kid": "\uD83D\uDCCC Dành cho bé"
+  },
+  "extend": {
+    "settings": "Cài đặt",
+    "try_hard": "Luyện tập",
+    "for_me": "Của tôi"
+  },
+  "settings": {
+    "title": "Thiết lập",
+    "linked": "Liên kết tài khoản:",
+    "volume_level": "Âm lượng:",
+    "contact_us": "Liên hệ:",
+    "already_have_an_account": "Đã có tài khoản:",
+    "sign_in_with_another_account": "Đăng nhập",
+    "language": "Ngôn ngữ:",
+    "change_language": "Chuyển sang tiếng anh \uD83C\uDDF8\uD83C\uDDED"
+  },
+  "dialog": {
+    "title": "Khởi động lại ứng dụng?",
+    "message": "Ngôn ngữ sẽ thay đổi khi khởi động lại ứng dụng.",
+    "ok": "Đồng ý",
+    "cancel": "Để sau"
+  },
+  "lesson_today": {
+    "loading": "Hãy đợi chút nhé...",
+    "error": "Đã xảy ra lỗi...",
+    "empty": "Không có dữ liệu",
+    "button": {
+      "next": "Trả lời câu hỏi",
+      "back": "Quay lại",
+      "send": "Gửi câu trả lời",
+      "finish": "Kết thúc"
+    }
+  },
+  "swipe":"Vuốt để di chuyển",
+  "num_lesson": "Số lượng bài học ",
+  "question": "Câu hỏi",
+  "seen_answer": "Xem đáp án"
+}

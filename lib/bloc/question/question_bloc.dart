@@ -1,19 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_translate/flutter_translate.dart';
 
 import '../../data/models/question.dart';
-import '../../data/repositories/question.dart';
 import '../../services/player_manager.dart';
+import '../../usecase/lesson_today/insert_id_lesson_today_recent_use_case.dart';
+import '../../usecase/question/get_question_by_id_use_case.dart';
 
 part 'question_event.dart';
 part 'question_state.dart';
 
 class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
-  final QuestionRepository questionRepo;
-  final PlayerManager playerManager;
+  final PlayerManager _playerManager;
+  final GetQuestionByIdUseCase _getQuestionByIdUseCase;
+  final InsertIdLessonTodayRecentUseCase _insertIdLessonTodayUseCase;
 
-  QuestionBloc({required this.questionRepo, required this.playerManager})
-      : super(QuestionInitialState()) {
+  QuestionBloc(
+    this._playerManager,
+    this._getQuestionByIdUseCase,
+    this._insertIdLessonTodayUseCase,
+  ) : super(QuestionInitialState()) {
     on<GetQuestionByIdEvent>(_getQuestionById);
     on<ReadQuestionEvent>(_playQuestion);
     on<CheckAnswerEvent>(_checkAnswer);
@@ -23,9 +29,9 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
       GetQuestionByIdEvent event, Emitter<QuestionState> emit) async {
     emit(QuestionLoadingState());
     try {
-      final question = await questionRepo.getQuestionById(event.id);
+      final question = await _getQuestionByIdUseCase.call(event.id);
       emit(QuestionCompletedState(question, null));
-      if (question != null) playerManager.playFromUrl(question.audio);
+      if (question != null) _playerManager.playFromUrl(question.audio!);
     } catch (e) {
       debugPrint(e.toString());
       emit(QuestionCompletedState(null, e.toString()));
@@ -33,19 +39,38 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
   }
 
   void _playQuestion(ReadQuestionEvent event, Emitter<QuestionState> emit) {
-    playerManager.playFromUrl(event.url);
+    _playerManager.playFromUrl(event.url);
     emit(QuestionInitialState());
   }
 
-  void _checkAnswer(CheckAnswerEvent event, Emitter<QuestionState> emit) {
+  Future<void> _checkAnswer(
+      CheckAnswerEvent event, Emitter<QuestionState> emit) async {
     var answer = event.answer;
     var correctAnswer = event.correctAnswer;
     var isCorrect = answer == correctAnswer;
+    var message = "";
+    var asset = "";
+    var languageCode =
+        LocalizedApp.of(event.context).delegate.currentLocale.languageCode;
+    var isEnglish = languageCode == 'en';
     if (isCorrect) {
-      playerManager.playCorrectAnswer();
+      _playerManager.playCorrectAnswer();
+      message = isEnglish
+          ? 'Great, your answer is absolutely correct!'
+          : 'Tuyệt vời, câu trả lời của bạn hoàn toàn chính xác!';
+      asset = 'assets/animations/firework_animation.json';
     } else {
-      playerManager.playWrongAnswer();
+      _playerManager.playWrongAnswer();
+      message = isEnglish
+          ? 'Your answer is wrong, the correct answer should be $correctAnswer.'
+          : 'Câu trả lời của bạn sai rồi, đáp án đúng phải là $correctAnswer.';
+      asset = 'assets/animations/sad_animation.json';
     }
-    emit(QuestionCheckResultState(isCorrect, correctAnswer));
+    emit(QuestionCheckResultState(message: message, asset: asset));
+    try {
+      _insertIdLessonTodayUseCase.call(event.lessonId);
+    } catch (e) {
+        print(e);
+    }
   }
 }

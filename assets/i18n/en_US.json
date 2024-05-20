@@ -1,0 +1,50 @@
+{
+  "hello": "Hello!",
+  "practice_for_today": "Let's practice for today \uD83D\uDC76",
+  "banner": {
+    "one": "What are you ",
+    "two": "learning \uD83D\uDCDA",
+    "three": " today?"
+  },
+  "title": {
+    "extend": "\uD83D\uDEA9 Extend",
+    "for_kid": "\uD83D\uDCCC For Kid"
+  },
+  "extend": {
+    "settings": "Settings",
+    "try_hard": "Try hard",
+    "for_me": "For me"
+  },
+  "settings": {
+    "title": "Settings",
+    "linked": "Link accounts:",
+    "volume_level": "Volume level:",
+    "contact_us": "Contact us:",
+    "already_have_an_account": "Already have an account:",
+    "sign_in_with_another_account": "Sign in",
+    "language": "Language:",
+    "change_language": "Change language to Vietnamese \uD83C\uDDFB\uD83C\uDDF3"
+  },
+  "dialog": {
+    "title": "Restart the application?",
+    "message": "The language will change after restarting the application.",
+    "ok": "Confirm",
+    "cancel": "Restart later"
+  },
+  "lesson_today": {
+    "loading": "Please wait a moment...",
+    "error": "Error! An error occurred. Please try again later...",
+    "empty": "No data",
+    "button": {
+      "next": "Answer the question",
+      "back": "Back",
+      "send": "Submit your answer",
+      "finish": "Finish"
+    }
+  },
+  "swipe":"Swipe to move",
+  "num_lesson": "Number of lessons ",
+  "question": "Question",
+  "seen_answer": "See answer"
+
+}

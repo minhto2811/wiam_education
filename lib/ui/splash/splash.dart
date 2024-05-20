@@ -19,7 +19,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   void initState() {
-    _splashBloc.add(SplashInitialEvent());
+    _splashBloc.add(SplashInitialEvent(context));
     super.initState();
   }
 

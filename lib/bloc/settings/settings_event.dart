@@ -13,23 +13,30 @@ final class SettingsChangeVolumeLevelEvent extends SettingsEvent {
   SettingsChangeVolumeLevelEvent(this.volumeLevel);
 }
 
-final class SettingsLinkAccountEvent extends SettingsEvent {
-  final String type;
-  SettingsLinkAccountEvent({required this.type});
+final class SettingsChangeLanguageEvent extends SettingsEvent {
+  final BuildContext context;
+
+  SettingsChangeLanguageEvent(this.context);
 }
 
+final class SettingsLinkAccountEvent extends SettingsEvent {
+  final String type;
+  final BuildContext context;
+
+  SettingsLinkAccountEvent({required this.context, required this.type});
+}
 
 final class SettingContactEvent extends SettingsEvent {
   final String type;
 
-  SettingContactEvent({required this.type});
-}
+  final BuildContext context;
 
+  SettingContactEvent({required this.context, required this.type});
+}
 
 final class SettingsSignInEvent extends SettingsEvent {
   final String type;
+  final BuildContext context;
 
-  SettingsSignInEvent({required this.type});
+  SettingsSignInEvent({required this.context, required this.type});
 }
-
-

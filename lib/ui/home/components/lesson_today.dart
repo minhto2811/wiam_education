@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_translate/flutter_translate.dart';
 import 'package:lottie/lottie.dart';
 import 'package:wiam/bloc/lesson_today/lesson_today_bloc.dart';
 import 'package:wiam/data/models/lesson_today.dart';
 import 'package:wiam/di/app_module.dart';
-import 'package:wiam/ui/home/page_content.dart';
-import 'package:wiam/ui/home/page_question.dart';
+import 'package:wiam/ui/home/components/page_content.dart';
+import 'package:wiam/ui/home/components/page_question.dart';
 
-import '../../services/player_manager.dart';
+import '../../../services/player_manager.dart';
 
 class LessonTodayPage extends StatefulWidget {
   const LessonTodayPage({super.key});
@@ -21,13 +22,14 @@ class _LessonTodayPageState extends State<LessonTodayPage> {
 
   @override
   void initState() {
-    _lessonTodayBloc.add(LessonTodayInitialEvent());
+    _lessonTodayBloc.add(LessonTodayInitialEvent(context));
     super.initState();
   }
 
   @override
   void dispose() {
     _lessonTodayBloc.close();
+    getIt<PlayerManager>().stop();
     super.dispose();
   }
 
@@ -45,8 +47,8 @@ class _LessonTodayPageState extends State<LessonTodayPage> {
             listener: (context, state) {},
             builder: (context, state) {
               if (state is LessonTodayLoadingState) {
-                return const MyPlaceHolder(
-                    message: 'Hãy đợi chút nhé...',
+                return MyPlaceHolder(
+                    message: translate('lesson_today.loading'),
                     image: 'assets/animations/bird_animation.json');
               } else if (state is LessonTodayCompletedState) {
                 if (state.lesson != null) {
@@ -55,8 +57,8 @@ class _LessonTodayPageState extends State<LessonTodayPage> {
                     lessonToday: state.lesson!,
                   );
                 }
-                return const MyPlaceHolder(
-                    message: 'Đã xảy ra lỗi...',
+                return MyPlaceHolder(
+                    message: translate('lesson_today.error'),
                     image: 'assets/animations/cat_4_animation.json');
               }
               return const SizedBox();
@@ -70,10 +72,6 @@ class ShowLessonToday extends StatefulWidget {
 
   const ShowLessonToday(
       {super.key, required this.lessonToday, required this.lessonTodayBloc});
-
-  void readDescription() {
-    lessonTodayBloc.add(ReadDescriptionEvent(lessonToday.audio));
-  }
 
   @override
   State<ShowLessonToday> createState() => _ShowLessonTodayState();
@@ -91,7 +89,9 @@ class _ShowLessonTodayState extends State<ShowLessonToday> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 24.0, right: 24.0,top: 28.0,bottom: 16.0), // EdgeInsets.all(32.0),
+      padding: const EdgeInsets.only(
+          left: 24.0, right: 24.0, top: 28.0, bottom: 16.0),
+      // EdgeInsets.all(32.0),
       child: Stack(children: [
         Column(
           children: [
@@ -115,7 +115,7 @@ class _ShowLessonTodayState extends State<ShowLessonToday> {
                         description: widget.lessonToday.description,
                         onClick: onClick),
                     PageQuestion(
-                        questionId: widget.lessonToday.questionId,
+                        lessonId: widget.lessonToday.id,
                         onClick: onClick),
                   ]),
             ),
@@ -125,7 +125,10 @@ class _ShowLessonTodayState extends State<ShowLessonToday> {
           top: 0.0,
           right: 0.0,
           child: InkWell(
-            onTap: widget.readDescription,
+            onTap: () {
+              widget.lessonTodayBloc
+                  .add(ReadDescriptionEvent(widget.lessonToday.audio));
+            },
             child: const Image(
               image: AssetImage('assets/images/3d-speaker.png'),
               width: 50.0,
@@ -137,11 +140,6 @@ class _ShowLessonTodayState extends State<ShowLessonToday> {
     );
   }
 }
-
-
-
-
-
 
 class MyPlaceHolder extends StatelessWidget {
   final String message;

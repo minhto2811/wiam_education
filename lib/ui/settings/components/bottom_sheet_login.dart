@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:wiam/bloc/settings/settings_bloc.dart';
 
-import '../../di/app_module.dart';
-import '../../services/player_manager.dart';
+import '../../../di/app_module.dart';
+import '../../../services/player_manager.dart';
 
 class BottomSheetLogin extends StatelessWidget {
   final SettingsBloc settingsBloc;
@@ -27,7 +27,7 @@ class BottomSheetLogin extends StatelessWidget {
                   title: 'Đăng nhập bằng Facebook',
                   onTap: () {
                     getIt<PlayerManager>().playWhenClick();
-                    settingsBloc.add(SettingsSignInEvent(type: 'facebook'));
+                    settingsBloc.add(SettingsSignInEvent(type: 'facebook',context: context));
                     Navigator.pop(context);
                   }),
               const SizedBox(height: 16.0),
@@ -36,7 +36,7 @@ class BottomSheetLogin extends StatelessWidget {
                   title: 'Đăng nhập bằng Google',
                   onTap: () {
                     getIt<PlayerManager>().playWhenClick();
-                    settingsBloc.add(SettingsSignInEvent(type: 'google'));
+                    settingsBloc.add(SettingsSignInEvent(type: 'google',context: context));
                     Navigator.pop(context);
                   })
             ]));
@@ -50,9 +50,9 @@ class ButtonLogin extends StatelessWidget {
 
   const ButtonLogin(
       {super.key,
-      required this.image,
-      required this.title,
-      required this.onTap});
+        required this.image,
+        required this.title,
+        required this.onTap});
 
   @override
   Widget build(BuildContext context) {

@@ -3,7 +3,7 @@ class Question {
   String _question;
   List<String> _answers;
   String _correctAnswer;
-  String _audio;
+  String? _audio;
 
   Question(this._id, this._question, this._answers, this._correctAnswer,this._audio);
 
@@ -15,7 +15,7 @@ class Question {
 
   String get correctAnswer => _correctAnswer;
 
-  String get audio => _audio;
+  String? get audio => _audio;
 
   factory Question.fromJson(Map<String, dynamic> json) {
     return Question(

@@ -16,8 +16,8 @@ final class QuestionCompletedState extends QuestionState {
 
 
 final class QuestionCheckResultState extends QuestionState{
-  final bool isCorrect;
-  final String correctAnswer;
+  final String message;
+  final String asset;
 
-  QuestionCheckResultState(this.isCorrect, this.correctAnswer);
+  QuestionCheckResultState({required this.message,required this.asset});
 }

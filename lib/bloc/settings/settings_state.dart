@@ -28,3 +28,5 @@ final class SettingsErrorState extends SettingsState {
   const SettingsErrorState({required this.message});
 }
 
+final class SettingsChangeLanguageState extends SettingsState {
+}

@@ -1,6 +1,5 @@
-
-
 import 'package:flutter/material.dart';
+import 'package:flutter_translate/flutter_translate.dart';
 
 class PageContent extends StatelessWidget {
   final String description;
@@ -28,7 +27,7 @@ class PageContent extends StatelessWidget {
         ElevatedButton.icon(
           onPressed: () => onClick(1),
           icon: const Icon(Icons.arrow_forward_rounded),
-          label: const Text('Trả lời câu hỏi'),
+          label: Text(translate('lesson_today.button.next')),
         )
       ],
     );
